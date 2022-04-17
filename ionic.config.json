@@ -1,5 +1,7 @@
 {
-  "name": "ref-session",
-  "integrations": {},
-  "type": "react"
+    "name": "ref-session",
+    "integrations": {
+        "capacitor": {}
+    },
+    "type": "react"
 }
