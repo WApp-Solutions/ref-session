@@ -1,14 +1,25 @@
-import './ExploreContainer.css';
+import './ExploreContainer.scss'
 
-interface ContainerProps { }
+import { FC } from 'react'
 
-const ExploreContainer: React.FC<ContainerProps> = () => {
-  return (
-    <div className="container">
-      <strong>Ready to create an app?</strong>
-      <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-    </div>
-  );
-};
+interface ContainerProps {}
 
-export default ExploreContainer;
+const ExploreContainer: FC<ContainerProps> = () => {
+    return (
+        <div className="container">
+            <strong>Hello World</strong>
+            <p>
+                Start with Ionic{' '}
+                <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://ionicframework.com/docs/components"
+                >
+                    UI Components
+                </a>
+            </p>
+        </div>
+    )
+}
+
+export default ExploreContainer
