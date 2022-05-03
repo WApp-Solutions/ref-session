@@ -34,7 +34,7 @@ import {
 
 const Session: FC = () => {
     const { sessionID } = useParams<{ sessionID: string }>()
-    const [showModal, setShowModal] = useState(true)
+    const [showModal] = useState(true)
     const [registrationSucceeded, setRegistrationSucceeded] = useState({
         firstname: '',
         isSucceeded: false,
@@ -48,7 +48,7 @@ const Session: FC = () => {
         lastname: string
     }
 
-    const [present, dismiss] = useIonToast()
+    const [present] = useIonToast()
 
     const {
         register,
@@ -59,15 +59,12 @@ const Session: FC = () => {
         reValidateMode: 'onSubmit',
     })
 
-    const unsub = useFirestoreSubscription<ISession>(
-        `sessions/${sessionID}`,
-        (snapshot) => {
-            console.log('Updated')
-            setSnapshotData(snapshot.data())
-        }
-    )
+    useFirestoreSubscription<ISession>(`sessions/${sessionID}`, (snapshot) => {
+        console.log('Updated')
+        setSnapshotData(snapshot.data())
+    })
 
-    const { firestoreWriter: attendeeWriter, serverTimestamp } =
+    const { firestoreWriter: attendeeWriter } =
         useFirebaseFirestoreWriter<ISessionAttendee>(
             `sessions/${sessionID}/attendees`
         )
@@ -107,7 +104,7 @@ const Session: FC = () => {
                 })
             }
         }
-    }, [firstName, lastName])
+    },[attendeeWriter, firstName, lastName, present])
 
     return (
         <>
@@ -147,6 +144,7 @@ const Session: FC = () => {
                             <div className={SessionStyles.upperPart}>
                                 <div className={SessionStyles.logoWrapper}>
                                     <img
+                                        alt="BFV logo"
                                         src={`${process.env.PUBLIC_URL}/assets/BFV_Logo.svg.png`}
                                     />
                                 </div>

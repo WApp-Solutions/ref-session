@@ -2,6 +2,7 @@
     "name": "ref-session",
     "version": "0.0.1",
     "private": true,
+    "homepage": "https://ref-session.wapp-solutions.com/",
     "dependencies": {
         "@capacitor/app": "1.1.1",
         "@capacitor/core": "3.4.3",
@@ -67,5 +68,5 @@
         "@types/react-router-dom": "^5.1.7",
         "prettier": "^2.6.2"
     },
-    "description": "An Ionic project"
+    "description": "Referee Session Planner"
 }

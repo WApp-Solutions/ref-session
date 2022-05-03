@@ -67,10 +67,10 @@ export const useFirestoreSubscription = <T = DocumentData>(
         )
     }
 
-    const pathToLastDocumentInPath =
+    /*const pathToLastDocumentInPath =
         pathSegments.length % 2 !== 0
             ? pathSegments.join('/')
-            : pathSegments.slice(0, pathSegments.length - 1).join('/')
+            : pathSegments.slice(0, pathSegments.length - 1).join('/')*/
 
     useEffect(() => {
         const unsub = onSnapshot(
