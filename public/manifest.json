@@ -1,6 +1,6 @@
 {
-    "short_name": "Ionic App",
-    "name": "My Ionic App",
+    "short_name": "Ref Session",
+    "name": "Referee Session Planner",
     "icons": [
         {
             "src": "assets/icon/favicon.png",

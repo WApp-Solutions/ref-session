@@ -13,9 +13,8 @@ import '@ionic/react/css/typography.css'
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { FC } from 'react'
-import { Redirect, Route } from 'react-router-dom'
-
-import Home from './pages/Home'
+import { Route } from 'react-router-dom'
+import Session from './pages/session/Session'
 
 /* Core CSS required for Ionic components to work properly */
 /* Basic CSS for apps built with Ionic */
@@ -23,19 +22,18 @@ import Home from './pages/Home'
 /* Theme variables */
 setupIonicReact()
 
-const App: FC = () => (
-    <IonApp>
-        <IonReactRouter>
-            <IonRouterOutlet>
-                <Route exact path="/home">
-                    <Home />
-                </Route>
-                <Route exact path="/">
-                    <Redirect to="/home" />
-                </Route>
-            </IonRouterOutlet>
-        </IonReactRouter>
-    </IonApp>
-)
+const App: FC = () => {
+    return (
+        <IonApp>
+            <IonReactRouter>
+                <IonRouterOutlet>
+                    <Route path="/register/session/:sessionID">
+                        <Session />
+                    </Route>
+                </IonRouterOutlet>
+            </IonReactRouter>
+        </IonApp>
+    )
+}
 
 export default App
