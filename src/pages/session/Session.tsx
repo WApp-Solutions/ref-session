@@ -60,7 +60,6 @@ const Session: FC = () => {
     })
 
     useFirestoreSubscription<ISession>(`sessions/${sessionID}`, (snapshot) => {
-        console.log('Updated')
         setSnapshotData(snapshot.data())
     })
 
@@ -92,14 +91,15 @@ const Session: FC = () => {
                     firstname: firstName ?? '',
                     isSucceeded: true,
                 })
-                console.log(`You are registered, ${firstName} ${lastName}`)
                 setFirstName('')
                 setLastName('')
             } catch (e: unknown) {
                 await present({
                     mode: 'ios',
                     message: 'Du bist bereits angemeldet!',
-                    color: 'danger',
+                    icon: checkmarkCircleOutline,
+                    color: 'success',
+                    position: 'top',
                     duration: 5000,
                 })
             }
@@ -210,7 +210,7 @@ const Session: FC = () => {
                                 <h2>Eventdaten</h2>
                                 <p>
                                     <IonIcon icon={peopleOutline} />
-                                    {snapshotData?.squat}
+                                    {snapshotData?.squad}
                                 </p>
                                 <p>
                                     <IonIcon icon={homeOutline} />

@@ -7,7 +7,7 @@ export interface ISession {
     title: string
     attendees: string
     location: ISessionLocation
-    squat: string
+    squad: string
 }
 
 export interface ISessionLocation {
