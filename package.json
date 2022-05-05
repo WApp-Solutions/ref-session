@@ -2,7 +2,6 @@
     "name": "ref-session",
     "version": "0.0.1",
     "private": true,
-    "homepage": "https://ref-session.wapp-solutions.com/",
     "dependencies": {
         "@capacitor/app": "1.1.1",
         "@capacitor/core": "3.4.3",

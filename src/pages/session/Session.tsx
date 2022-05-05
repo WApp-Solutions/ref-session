@@ -104,7 +104,7 @@ const Session: FC = () => {
                 })
             }
         }
-    },[attendeeWriter, firstName, lastName, present])
+    }, [attendeeWriter, firstName, lastName, present])
 
     return (
         <>
@@ -112,7 +112,7 @@ const Session: FC = () => {
             <IonModal isOpen={showModal} backdropDismiss={false}>
                 <IonHeader>
                     <IonToolbar>
-                        <IonTitle>
+                        <IonTitle className={SessionStyles.title}>
                             {snapshotData?.title ?? (
                                 <IonSkeletonText animated={true} />
                             )}
