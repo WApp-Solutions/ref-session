@@ -1,12 +1,10 @@
-name: Development
+name: Release
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# Controls when the action will run. Triggers the workflow on release
+# events but only for published ones
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+    release:
+        types: [published]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -31,15 +29,18 @@ jobs:
             - name: Run build task
               run: npm run build --if-present
               env:
-                  REACT_APP_FIREBASE_API_KEY: ${{ secrets.DEV_FIREBASE_API_KEY }}
-                  REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.DEV_FIREBASE_MESSAGING_SENDER_ID }}
-                  REACT_APP_FIREBASE_APP_ID: ${{ secrets.DEV_FIREBASE_APP_ID }}
-                  REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.DEV_FIREBASE_AUTH_DOMAIN }}
-                  REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.DEV_FIREBASE_PROJECT_ID }}
-                  REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.DEV_FIREBASE_STORAGE_BUCKET }}
+                  REACT_APP_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+                  REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+                  REACT_APP_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+                  REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+                  REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+                  REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
 
             - name: Add commit hash to index.html
               run: 'echo "<!--Commit Hash: $(git rev-parse HEAD)-->" >> build/index.html'
+
+            - name: Add Release tag to index.html
+              run: 'echo "<!--Release Tag: $GITHUB_REF -->" >> build/index.html'
 
             - name: ssh deploy
               uses: easingthemes/ssh-deploy@v2.1.4
@@ -52,4 +53,4 @@ jobs:
                   REMOTE_USER: ${{ secrets.REMOTE_USER }}
                   SOURCE: 'build/'
                   # Target directory
-                  TARGET: ${{ secrets.DEV_REMOTE_TARGET }}
+                  TARGET: ${{ secrets.REMOTE_TARGET }}
