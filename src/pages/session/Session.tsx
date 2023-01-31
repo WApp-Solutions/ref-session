@@ -282,7 +282,7 @@ const Session: FC = () => {
                                     >
                                         <p>
                                             <IonIcon icon={peopleOutline} />
-                                            {snapshotData?.squad}
+                                            {snapshotData?.squad.title}
                                         </p>
                                         <p>
                                             <IonIcon icon={homeOutline} />

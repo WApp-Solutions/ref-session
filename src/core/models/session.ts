@@ -1,23 +1,22 @@
 import { Timestamp } from '@firebase/firestore'
+import { ILocation } from './location'
+import { ISquad } from './squad'
 
 export interface ISession {
+    id: string
     startDate: Timestamp
     endDate: Timestamp
     isRegistrationAllowed: boolean
     title: string
-    attendees: string
     location: ISessionLocation
-    squad: string
+    instructor?: string
+    squad: ISquad
 }
 
-export interface ISessionLocation {
-    city: string
-    postalCode: number
-    number: string
-    street: string
-}
+export interface ISessionLocation extends Omit<ILocation, 'title'> {}
 
 export interface ISessionAttendee {
+    id: string
     firstName: string
     lastName: string
     uniqueId: string

@@ -2,5 +2,12 @@
 	"appId": "com.wapp-solutions.ref-session",
 	"appName": "ref-session",
 	"webDir": "build",
-	"bundledWebRuntime": false
+	"bundledWebRuntime": false,
+	"plugins": {
+		"Keyboard": {
+			"resize": "none",
+			"style": "DARK",
+			"resizeOnFullScreen": true
+		}
+	}
 }
