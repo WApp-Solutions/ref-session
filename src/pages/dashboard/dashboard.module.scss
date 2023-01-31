@@ -1,0 +1,22 @@
+.itemContainer {
+    margin: auto;
+
+    p {
+        display: flex;
+        align-items: center;
+    }
+}
+
+// Add animation only, if fab-button overlays content
+@media (max-width: 960px) {
+    ion-fab {
+        ion-fab-button {
+            opacity: 1;
+            transition: all 0.5s;
+
+            &.scroll {
+                opacity: 0.2;
+            }
+        }
+    }
+}

@@ -1,10 +1,19 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli'
+import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard'
 
 const config: CapacitorConfig = {
-  appId: 'com.wapp-solutions.ref-session',
-  appName: 'ref-session',
-  webDir: 'build',
-  bundledWebRuntime: false
-};
+    appId: 'com.wapp-solutions.ref-session',
+    appName: 'ref-session',
+    webDir: 'build',
+    bundledWebRuntime: false,
 
-export default config;
+    plugins: {
+        Keyboard: {
+            resize: KeyboardResize.None,
+            style: KeyboardStyle.Dark,
+            resizeOnFullScreen: true,
+        },
+    },
+}
+
+export default config

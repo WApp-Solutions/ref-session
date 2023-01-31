@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="405px" height="73px" viewBox="0 0 405 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Artboard</title>
+    <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" font-family="AllertaStencil-Regular, Allerta Stencil" font-weight="normal">
+        <text id="SCHIEDSRICHTER" font-size="39" letter-spacing="6.50000024" fill="#FFFFFF">
+            <tspan x="-2" y="29">SCHIEDSRICHTER</tspan>
+        </text>
+        <text id="SITZUNGEN" font-size="36" letter-spacing="26.0999994" fill="#FFFFFF">
+            <tspan x="-2" y="72">SITZUNGEN</tspan>
+        </text>
+    </g>
+</svg>

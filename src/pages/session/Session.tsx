@@ -210,7 +210,7 @@ const Session: FC = () => {
                                 <h2>Eventdaten</h2>
                                 <p>
                                     <IonIcon icon={peopleOutline} />
-                                    {snapshotData?.squad}
+                                    {snapshotData?.squad.title}
                                 </p>
                                 <p>
                                     <IonIcon icon={homeOutline} />
