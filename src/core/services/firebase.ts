@@ -20,6 +20,8 @@ import {
 } from 'firebase/firestore'
 import { useEffect, useState } from 'react'
 import { DataPointType } from '../models/data-point.firebase'
+import { Timestamp } from '@firebase/firestore'
+import { ISession, ISessionAttendee } from '../models/session'
 
 const firebaseOptions: FirebaseOptions = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -134,4 +136,148 @@ export const useFirebaseFirestoreWriter = <T>(path: string) => {
     }
 
     return { firestoreWriter, serverTimestamp, arrayUnion }
+}
+
+interface DebugAttendees {
+    id: string
+    sessionTitle: string
+    date: string
+    attendees: {
+        firstName: string
+        lastName: string
+    }[]
+}
+
+const capitalizeFirstLetter = (input: string): string => {
+    return input.charAt(0).toUpperCase() + input.slice(1)
+}
+
+const shell = async (
+    session: DebugAttendees,
+    csvString: CSVString
+): Promise<string> => {
+    return new Promise((resolve) => {
+        session.attendees.forEach((attendee) => {
+            csvString.appendRow(`${attendee.firstName},${attendee.lastName}`)
+        })
+
+        resolve(csvString.getValue())
+    })
+}
+
+export const useFirestoreDebugger = <T>() => {
+    useEffect(() => {
+        const asyncShell = async () => {
+            const debugAttendees = await fetchData()
+
+            const csvColumns = `Vorname,Nachname\n`
+
+            //console.log(debugAttendees.length)
+
+            debugAttendees.forEach((session) => {
+                if (session.attendees.length > 0) {
+                    const attendeeCSV = session.attendees
+                        .map((a) => `${a.firstName}, ${a.lastName}`)
+                        .reduce((acc, curr) => `${acc}\n ${curr}`)
+
+                    downloadBlob(
+                        `${csvColumns}${attendeeCSV}`,
+                        session.sessionTitle
+                    )
+                }
+            })
+        }
+
+        void asyncShell()
+    }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}
+
+const fetchData = async (): Promise<DebugAttendees[]> => {
+    return new Promise(async (resolve, reject) => {
+        const collectionRef = collection(db, 'sessions').withConverter(
+            converter<ISession>()
+        )
+
+        const a = new Date('2022-09-01').getTime() / 1000
+        const b = new Date('2022-12-31').getTime() / 1000
+
+        const q = query(
+            collectionRef,
+            where('startDate', '>=', new Timestamp(a, 0)),
+            where('startDate', '<=', new Timestamp(b, 0))
+        )
+
+        const debugAttendees: DebugAttendees[] = []
+
+        const sessions = await getDocs(q)
+        for (let session of sessions.docs) {
+            debugAttendees.push({
+                id: session.id,
+                sessionTitle: `${session.data().title} (${
+                    session.data().squad
+                })`,
+                attendees: [],
+                date: session.data().startDate.toDate().toDateString(),
+            })
+
+            const attendees = await getDocs(
+                query(
+                    collection(
+                        db,
+                        `sessions/${session.id}/attendees`
+                    ).withConverter(converter<ISessionAttendee>())
+                )
+            )
+
+            debugAttendees[
+                debugAttendees.findIndex((a) => a.id === session.id)
+            ].attendees = [
+                ...attendees.docs.map((d) => {
+                    return {
+                        firstName: capitalizeFirstLetter(d.data().firstName),
+                        lastName: capitalizeFirstLetter(d.data().lastName),
+                    }
+                }),
+            ]
+        }
+        resolve(debugAttendees)
+    })
+}
+
+/** Download contents as a file
+ * Source: https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+ */
+function downloadBlob(content: string, filename: string) {
+    var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+    var url = URL.createObjectURL(blob)
+
+    // Create a link to download it
+    var pom = document.createElement('a')
+    pom.href = url
+    pom.setAttribute('download', filename)
+
+    console.log(pom)
+    // Create a blob
+}
+
+class CSVString {
+    private initialValue: string
+    private value: string
+    constructor(initialValue: string) {
+        this.value = initialValue
+        this.initialValue = initialValue
+    }
+
+    appendRow(row: string): void {
+        this.value += `\n${row}`
+    }
+
+    getValue(): string {
+        return this.value
+    }
+
+    clearValue(): void {
+        this.value = this.initialValue
+    }
 }
