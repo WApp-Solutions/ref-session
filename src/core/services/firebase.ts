@@ -177,8 +177,8 @@ export const useFirestoreDebugger = <T>() => {
             debugAttendees.forEach((session) => {
                 if (session.attendees.length > 0) {
                     const attendeeCSV = session.attendees
-                        .map((a) => `${a.firstName}, ${a.lastName}`)
-                        .reduce((acc, curr) => `${acc}\n ${curr}`)
+                        .map((a) => `${a.firstName},${a.lastName}`)
+                        .reduce((acc, curr) => `${acc}\n${curr}`)
 
                     downloadBlob(
                         `${csvColumns}${attendeeCSV}`,
@@ -199,8 +199,8 @@ const fetchData = async (): Promise<DebugAttendees[]> => {
             converter<ISession>()
         )
 
-        const a = new Date('2022-09-01').getTime() / 1000
-        const b = new Date('2022-12-31').getTime() / 1000
+        const a = new Date('2022-12-31').getTime() / 1000
+        const b = new Date('2023-05-31').getTime() / 1000
 
         const q = query(
             collectionRef,
