@@ -83,6 +83,43 @@ export const useFirestoreSubscription = <T = DocumentData>(
     return unsubscribe
 }
 
+export const useFirebaseFirestoreReader = <T>(path: string) => {
+    const pathSegments = path.split('/')
+
+    const [firestoreReader, setFirestoreReader] = useState({
+        checkExistance: async (
+            key: string,
+            value: string
+        ): Promise<boolean | T> => Promise.resolve(false),
+    })
+
+    if (pathSegments.length % 2 === 0) {
+        throw new Error(
+            `[Firestore Reader Hook] The path '${path}' has an even count of segments => Points to a collection?`
+        )
+    }
+    useEffect(() => {
+        const firestoreReader = {
+            checkExistance: async (
+                key: string,
+                value: string
+            ): Promise<boolean | T> => {
+                const readQuery = query(
+                    collection(db, path),
+                    where(key, '==', value)
+                )
+                const snapshot = await getDocs(readQuery)
+
+                return snapshot.size > 0 && (snapshot.docs[0].data() as T)
+            },
+        }
+
+        setFirestoreReader(firestoreReader)
+    }, [setFirestoreReader, path])
+
+    return firestoreReader
+}
+
 export const useFirebaseFirestoreWriter = <T>(path: string) => {
     const pathSegments = path.split('/')
 

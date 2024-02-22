@@ -21,5 +21,6 @@ export interface ISessionAttendee {
     firstName: string
     lastName: string
     uniqueId: string
+    deviceID: string
     registeredAt: Date
 }
