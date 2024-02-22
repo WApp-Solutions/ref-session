@@ -1,4 +1,6 @@
 import {
+    IonAccordion,
+    IonAccordionGroup,
     IonButton,
     IonContent,
     IonHeader,
@@ -13,32 +15,37 @@ import {
     IonToolbar,
     useIonToast,
 } from '@ionic/react'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
 import SessionStyles from './Session.module.scss'
 
 import {
+    useFirebaseFirestoreReader,
     useFirebaseFirestoreWriter,
     useFirestoreSubscription,
 } from '../../core/services/firebase'
 import { ISession, ISessionAttendee } from '../../core/models/session'
 import { useForm } from 'react-hook-form'
 import {
+    caretDownCircle,
     checkmarkCircleOutline,
+    closeOutline,
+    flashOffOutline,
     homeOutline,
     lockClosed,
     peopleOutline,
     timerOutline,
 } from 'ionicons/icons'
+import { useDeviceID } from '../../core/services/device'
 
 const Session: FC = () => {
     const { sessionID } = useParams<{ sessionID: string }>()
     const [showModal] = useState(true)
-    const [registrationSucceeded, setRegistrationSucceeded] = useState({
-        firstname: '',
-        isSucceeded: false,
-    })
+    const [registrationSucceeded, setRegistrationSucceeded] = useState<{
+        firstname: string
+        isSucceeded: boolean
+    }>()
     const [snapshotData, setSnapshotData] = useState<ISession>()
     const [lastName, setLastName] = useState<string>()
     const [firstName, setFirstName] = useState<string>()
@@ -63,6 +70,30 @@ const Session: FC = () => {
         setSnapshotData(snapshot.data())
     })
 
+    const deviceID = useDeviceID(
+        sessionID,
+        snapshotData?.endDate.toDate() ?? new Date()
+    )
+    const firestoreReader = useFirebaseFirestoreReader<ISessionAttendee>(
+        `sessions/${sessionID}/attendees`
+    )
+    useEffect(() => {
+        if (!!deviceID) {
+            firestoreReader
+                .checkExistance('deviceID', deviceID)
+                .then((isRegistered) => {
+                    if (typeof isRegistered !== 'boolean') {
+                        setRegistrationSucceeded({
+                            firstname: isRegistered.firstName,
+                            isSucceeded: true,
+                        })
+                    } else {
+                        setRegistrationSucceeded(undefined)
+                    }
+                })
+        }
+    }, [deviceID, firestoreReader, setRegistrationSucceeded])
+
     const { firestoreWriter: attendeeWriter } =
         useFirebaseFirestoreWriter<ISessionAttendee>(
             `sessions/${sessionID}/attendees`
@@ -73,7 +104,7 @@ const Session: FC = () => {
             ?.toLowerCase()
             .trim()}`
 
-        if (!!firstName && !!lastName) {
+        if (!!firstName && !!lastName && !!deviceID) {
             try {
                 await attendeeWriter.create(
                     {
@@ -81,6 +112,7 @@ const Session: FC = () => {
                         lastName: lastName.trim(),
                         uniqueId,
                         registeredAt: new Date(),
+                        deviceID,
                     },
                     {
                         fieldPath: 'uniqueId',
@@ -103,8 +135,26 @@ const Session: FC = () => {
                     duration: 5000,
                 })
             }
+        } else if (!deviceID) {
+            await present({
+                mode: 'ios',
+                message: 'Dein Gerät konnte nicht identifiziert werden!',
+                icon: flashOffOutline,
+                color: 'danger',
+                header: 'Anmeldung nicht möglich!',
+                position: 'top',
+                buttons: [{ role: 'cancel', icon: closeOutline }],
+                duration: 15000,
+            })
         }
-    }, [attendeeWriter, firstName, lastName, present])
+    }, [
+        attendeeWriter,
+        firstName,
+        lastName,
+        present,
+        setRegistrationSucceeded,
+        deviceID,
+    ])
 
     return (
         <>
@@ -119,7 +169,7 @@ const Session: FC = () => {
                         </IonTitle>
                     </IonToolbar>
                 </IonHeader>
-                <IonContent>
+                <IonContent scrollY={false}>
                     {!snapshotData?.isRegistrationAllowed && (
                         <>
                             <div className={SessionStyles.lockScreenBack}></div>
@@ -136,7 +186,8 @@ const Session: FC = () => {
                             </div>
                         </>
                     )}
-                    {!registrationSucceeded.isSucceeded ? (
+                    {registrationSucceeded === undefined ||
+                    !registrationSucceeded.isSucceeded ? (
                         <form
                             className={SessionStyles.form}
                             onSubmit={handleSubmit(registerCallback)}
@@ -205,30 +256,6 @@ const Session: FC = () => {
                                     )}
                                 </div>
                             </div>
-
-                            <div className={SessionStyles.eventDetails}>
-                                <h2>Eventdaten</h2>
-                                <p>
-                                    <IonIcon icon={peopleOutline} />
-                                    {snapshotData?.squad}
-                                </p>
-                                <p>
-                                    <IonIcon icon={homeOutline} />
-                                    {`${snapshotData?.location.street} ${snapshotData?.location.number}, ${snapshotData?.location.postalCode} ${snapshotData?.location.city}`}
-                                </p>
-                                <p>
-                                    <IonIcon icon={timerOutline} />
-                                    {`${snapshotData?.startDate
-                                        .toDate()
-                                        .toLocaleString('de', {
-                                            timeStyle: 'short',
-                                        })} Uhr - ${snapshotData?.endDate
-                                        .toDate()
-                                        .toLocaleString('de', {
-                                            timeStyle: 'short',
-                                        })} Uhr`}
-                                </p>
-                            </div>
                             <IonButton
                                 className={SessionStyles.register}
                                 expand="full"
@@ -240,11 +267,48 @@ const Session: FC = () => {
                             >
                                 Anmelden
                             </IonButton>
+                            <IonAccordionGroup>
+                                <IonAccordion
+                                    value="first"
+                                    toggleIcon={caretDownCircle}
+                                    toggleIconSlot="start"
+                                >
+                                    <IonItem slot="header">
+                                        <IonLabel>Eventdaten</IonLabel>
+                                    </IonItem>
+                                    <div
+                                        className={SessionStyles.eventDetails}
+                                        slot="content"
+                                    >
+                                        <p>
+                                            <IonIcon icon={peopleOutline} />
+                                            {snapshotData?.squad}
+                                        </p>
+                                        <p>
+                                            <IonIcon icon={homeOutline} />
+                                            {`${snapshotData?.location.street} ${snapshotData?.location.number}, ${snapshotData?.location.postalCode} ${snapshotData?.location.city}`}
+                                        </p>
+                                        <p>
+                                            <IonIcon icon={timerOutline} />
+                                            {`${snapshotData?.startDate
+                                                .toDate()
+                                                .toLocaleString('de', {
+                                                    timeStyle: 'short',
+                                                })} Uhr - ${snapshotData?.endDate
+                                                .toDate()
+                                                .toLocaleString('de', {
+                                                    timeStyle: 'short',
+                                                })} Uhr`}
+                                        </p>
+                                    </div>
+                                </IonAccordion>
+                            </IonAccordionGroup>
                         </form>
                     ) : (
                         <div className={SessionStyles.successDialog}>
                             <IonIcon icon={checkmarkCircleOutline} />
-                            <b>{`Du wurdest erfolgreich angemeldet, ${registrationSucceeded.firstname}!`}</b>
+                            <b>Du wurdest erfolgreich angemeldet,</b>
+                            <b>{registrationSucceeded.firstname}!</b>
                         </div>
                     )}
                 </IonContent>
